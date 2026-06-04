@@ -1,0 +1,89 @@
+Create a basic keylogger program that records and logs keystrokes. Focus on logging the keys pressed and saving them to a file
+
+import tkinter as tk
+from datetime import datetime
+
+class KeyboardRecorder:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Keyboard Input Recorder")
+        self.root.geometry("700x500")
+
+        self.recording = False
+        self.logged_keys = []
+
+        title = tk.Label(
+            root,
+            text="Keyboard Input Recorder (Window Only)",
+            font=("Arial", 16, "bold")
+        )
+        title.pack(pady=10)
+
+        self.status = tk.Label(
+            root,
+            text="Status: Not Recording",
+            fg="red"
+        )
+        self.status.pack()
+
+        self.text_area = tk.Text(root, height=15, width=80)
+        self.text_area.pack(pady=10)
+
+        button_frame = tk.Frame(root)
+        button_frame.pack(pady=10)
+
+        self.start_btn = tk.Button(
+            button_frame,
+            text="Start Recording",
+            command=self.start_recording
+        )
+        self.start_btn.grid(row=0, column=0, padx=5)
+
+        self.stop_btn = tk.Button(
+            button_frame,
+            text="Stop Recording",
+            command=self.stop_recording
+        )
+        self.stop_btn.grid(row=0, column=1, padx=5)
+
+        self.save_btn = tk.Button(
+            button_frame,
+            text="Save Log",
+            command=self.save_log
+        )
+        self.save_btn.grid(row=0, column=2, padx=5)
+
+        root.bind("<Key>", self.capture_key)
+
+    def start_recording(self):
+        self.recording = True
+        self.status.config(text="Status: Recording", fg="green")
+
+    def stop_recording(self):
+        self.recording = False
+        self.status.config(text="Status: Stopped", fg="orange")
+
+    def capture_key(self, event):
+        if not self.recording:
+            return
+
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        entry = f"[{timestamp}] Key: {event.keysym}"
+
+        self.logged_keys.append(entry)
+
+        self.text_area.insert(tk.END, entry + "\n")
+        self.text_area.see(tk.END)
+
+    def save_log(self):
+        with open("keyboard_log.txt", "w", encoding="utf-8") as file:
+            file.write("\n".join(self.logged_keys))
+
+        self.text_area.insert(
+            tk.END,
+            "\nLog saved to keyboard_log.txt\n"
+        )
+
+root = tk.Tk()
+app = KeyboardRecorder(root)
+root.mainloop()
